@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Interval / Ranges Calculator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#f4f5fa;--pn:#fff;--tx:#161a2b;--mu:#555b72;--bd:#d6d9e6;--ac:#3a43d1;--ac2:#e9ebfc;--er:#b3261e;--rs:#eef0fa;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#10121c;--pn:#181b29;--tx:#eceef8;--mu:#a3a9c4;--bd:#2c3150;--ac:#8c94ff;--ac2:#22274a;--er:#ff8f86;--rs:#1e2236}}
+:root[data-theme=dark]{--bg:#10121c;--pn:#181b29;--tx:#eceef8;--mu:#a3a9c4;--bd:#2c3150;--ac:#8c94ff;--ac2:#22274a;--er:#ff8f86;--rs:#1e2236}
+*,*:before,*:after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+.wrap{max-width:1040px;margin:0 auto;padding:20px 16px 40px}
+header{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-start}
+h1{margin:0;font-size:1.6rem;letter-spacing:-.02em}header p{margin:4px 0 0;color:var(--mu);max-width:46ch}
+h2{margin:24px 0 2px;font-size:1.3rem}h3{margin:0 0 12px;font-size:1rem}.desc{margin:0 0 16px;color:var(--mu)}
+.th{display:flex;align-items:center;gap:8px;font-size:.9rem}
+nav{display:flex;gap:4px;margin-top:20px;overflow-x:auto;border-bottom:1px solid var(--bd)}
+nav button{flex:0 0 auto;border:0;border-bottom:3px solid transparent;background:none;color:var(--mu);padding:10px 14px;font:inherit;font-weight:500;cursor:pointer}
+nav button[aria-selected=true]{color:var(--ac);border-color:var(--ac);font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:start}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--pn);border:1px solid var(--bd);border-radius:12px;padding:18px}
+.res{background:var(--rs)}
+label{display:block;margin:12px 0 4px;font-size:.9rem;font-weight:500}
+input,select{width:100%;min-width:0;padding:9px 10px;font:inherit;color:var(--tx);background:var(--pn);border:1px solid var(--bd);border-radius:8px}
+.chk{display:flex;gap:8px;align-items:center;font-weight:400}.chk input{width:auto}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}.row input,.row select{flex:1 1 140px;width:auto}
+.row:first-child{margin-top:0}
+button{font:inherit;font-weight:500;padding:8px 14px;border-radius:8px;border:1px solid var(--bd);background:var(--pn);color:var(--tx);cursor:pointer}
+button:hover{border-color:var(--ac)}.cp{background:var(--ac);color:#fff;border-color:var(--ac);margin-top:14px}
+:root[data-theme=dark] .cp,:root:not([data-theme=light]) .cp{color:#10121c}
+@media(prefers-color-scheme:light){:root:not([data-theme=dark]) .cp{color:#fff}}
+:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.err{display:block;color:var(--er);font-size:.85rem;margin-top:3px}.err:not(:empty):before{content:"Error: ";font-weight:600}
+[aria-invalid=true]{border-color:var(--er)}
+.big{font-size:1.7rem;font-weight:700;letter-spacing:-.02em;line-height:1.25;overflow-wrap:anywhere}
+.sub{margin:6px 0 0;font-weight:500}.empty{color:var(--mu);margin:0}
+dl{margin:14px 0 0}dl div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid var(--bd)}
+dt{color:var(--mu)}dd{margin:0;font-weight:600;text-align:right;overflow-wrap:anywhere}
+.note{font-size:.85rem;color:var(--mu);margin:10px 0 0}
+.g8{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 10px}
+footer{margin-top:28px;color:var(--mu);font-size:.85rem}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:9px 16px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.on{opacity:1}
+:root{--gr:#17803f}@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--gr:#5fd68f}}:root[data-theme=dark]{--gr:#5fd68f}
+#t-uv{color:var(--gr);font-weight:600}#t-uv[aria-selected=true]{color:var(--gr);border-bottom-color:var(--gr)}
+dl div{align-items:center}dl dd{flex:1}.mini{padding:2px 9px;font-size:.78rem;flex:0 0 auto}.big+.mini{display:block;margin-top:8px}
+textarea{width:100%;padding:9px 10px;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;color:var(--tx);background:var(--pn);border:1px solid var(--bd);border-radius:8px;resize:vertical}
+dl{margin:8px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));column-gap:22px;font-size:.82rem}
+dl div{padding:3px 0;gap:8px}dt{flex:0 1 auto}dl dd{font-weight:600}
+.grp{grid-column:1/-1;padding-top:10px!important}.grp dt{font-weight:700;color:var(--ac);font-size:.74rem;text-transform:uppercase;letter-spacing:.05em}
+.big{font-size:1.2rem;line-height:1.3}.sub{font-size:.85rem;margin-top:4px}.note{font-size:.76rem;margin-top:8px}
+.mini{padding:1px 7px;font-size:.7rem}.big+.mini{margin-top:6px}
+input[type=range]{padding:0;border:0;background:none;accent-color:var(--ac);flex:1 1 160px}
+#cal{position:absolute;z-index:50;width:292px;max-width:calc(100vw - 16px);background:var(--pn);border:1px solid var(--bd);border-radius:12px;padding:12px;box-shadow:0 8px 28px rgba(0,0,0,.28)}
+#cal .yr{display:flex;gap:6px;align-items:center}#cal .yr input{width:76px;text-align:center;flex:0 0 auto}
+.cg{display:grid;gap:4px;margin-top:10px}.cg.m{grid-template-columns:repeat(3,1fr)}.cg.d{grid-template-columns:repeat(7,1fr)}
+.cg button{padding:6px 2px;font-size:.82rem}.cg .wd{text-align:center;font-size:.72rem;color:var(--mu)}
+.cg .sel{background:var(--ac);color:var(--pn);border-color:var(--ac)}.cg .td{border-color:var(--ac);border-width:2px}
+.cg button:disabled{opacity:.35;cursor:not-allowed}#cal select{width:100%}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head>
+<body><div class="wrap">
+<header><div><h1>Interval / Ranges Calculator</h1><p>Calculate date intervals, durations, and time ranges with clear, reliable results.</p></div>
+<div class="th"><label for="theme" style="margin:0">Theme</label><select id="theme" style="width:auto"><option value="light">Light</option><option value="dark">Dark</option><option value="system">System</option></select></div></header>
+<nav role="tablist" aria-label="Calculators">
+<button role="tab" id="t-uv" aria-controls="p-uv">Universal Converter</button>
+<button role="tab" id="t-du" aria-controls="p-du">Duration Calculator</button>
+<button role="tab" id="t-tr" aria-controls="p-tr">Travel Time</button>
+<button role="tab" id="t-ar" aria-controls="p-ar">Area Calculator</button></nav>
+
+<section id="p-du" role="tabpanel" aria-labelledby="t-du" hidden><h2>Duration Calculator</h2><p class="desc">Work with dates, durations, and time units in one place.</p>
+<label for="du-mode">Calculation</label><select id="du-mode"><option value="dd">Date difference</option><option value="dc">Duration converter</option><option value="da">Date arithmetic (add or subtract)</option><option value="uc">Time unit converter</option></select></section>
+<section id="p-dd" hidden><h2>Date Difference</h2><p class="desc">Find the interval between two dates or date-times.</p>
+<div class="grid"><form id="f-dd" class="card" novalidate><h3>Calculation input</h3>
+<label for="dd-mode">Input mode</label><select id="dd-mode"><option value="d">Date only</option><option value="dt">Date &amp; time</option></select>
+<label for="dd-a">Start date</label><div class="row"><input id="dd-a" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" aria-describedby="e-dd-a"><button type="button" data-now="dd-a">Use current</button></div><small class="err" id="e-dd-a"></small>
+<label for="dd-b">End date</label><div class="row"><input id="dd-b" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" aria-describedby="e-dd-b"><button type="button" data-now="dd-b">Use current</button></div><small class="err" id="e-dd-b"></small>
+<label class="chk"><input type="checkbox" id="dd-inc"> Include end date (count dates covered)</label>
+<div class="row" style="margin-top:14px"><button type="button" id="dd-swap">Swap dates</button><button type="reset">Clear</button></div></form>
+<div class="card res"><h3>Interval summary</h3><div id="r-dd" aria-live="polite"></div><button type="button" class="cp" data-copy="dd">Copy results</button></div></div></section>
+
+<section id="p-dc" hidden><h2>Duration Converter</h2><p class="desc">Convert a duration between fixed units. One day is exactly 24 hours.</p>
+<div class="grid"><form id="f-dc" class="card" novalidate><h3>Calculation input</h3>
+<label for="dc-v">Value</label><input id="dc-v" inputmode="decimal" value="90061" aria-describedby="e-dc-v"><small class="err" id="e-dc-v"></small>
+<label for="dc-u">Unit</label><select id="dc-u"><option value="millisecond">Milliseconds</option><option value="second" selected>Seconds</option><option value="minute">Minutes</option><option value="hour">Hours</option><option value="day">Days</option><option value="week">Weeks</option></select>
+<label class="chk"><input type="checkbox" id="dc-w"> Include weeks in the breakdown</label>
+<div class="row" style="margin-top:14px"><button type="reset">Reset</button></div></form>
+<div class="card res"><h3>Converted duration</h3><div id="r-dc" aria-live="polite"></div><button type="button" class="cp" data-copy="dc">Copy results</button></div></div></section>
+
+<section id="p-da" hidden><h2>Date Arithmetic</h2><p class="desc">Add or subtract a duration from a starting date.</p>
+<div class="grid"><form id="f-da" class="card" novalidate><h3>Calculation input</h3>
+<label for="da-base">Base date</label><div class="row"><input id="da-base" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" aria-describedby="e-da-base"><button type="button" data-now="da-base">Use current</button></div><small class="err" id="e-da-base"></small>
+<label class="chk"><input type="checkbox" id="da-time"> Include base time</label>
+<label for="da-op">Operation</label><select id="da-op"><option value="add">Add</option><option value="sub">Subtract</option></select>
+<div class="g8" id="da-f"></div>
+<div class="row" style="margin-top:14px"><button type="reset">Reset</button></div></form>
+<div class="card res"><h3>Result</h3><div id="r-da" aria-live="polite"></div><button type="button" class="cp" data-copy="da">Copy result</button></div></div></section>
+
+<section id="p-uc" hidden><h2>Unit Converter</h2><p class="desc">Convert between time units, from milliseconds to millennia.</p>
+<div class="grid"><form id="f-uc" class="card" novalidate><h3>Calculation input</h3>
+<label for="uc-v">Value</label><input id="uc-v" inputmode="decimal" value="1" aria-describedby="e-uc-v"><small class="err" id="e-uc-v"></small>
+<label for="uc-from">From unit</label><select id="uc-from"></select>
+<label for="uc-to">To unit</label><select id="uc-to"></select>
+<label for="uc-basis">Conversion basis</label><select id="uc-basis"><option value="fixed">Fixed duration (exact)</option><option value="avg">Average Gregorian year (approximate)</option></select>
+<div class="row" style="margin-top:14px"><button type="button" id="uc-swap">Swap units</button><button type="reset">Reset</button></div>
+<p class="note">A calendar month or year has no universal fixed length. For exact results tied to real dates, use Date Difference or Date Arithmetic.</p></form>
+<div class="card res"><h3>Conversion result</h3><div id="r-uc" aria-live="polite"></div><button type="button" class="cp" data-copy="uc">Copy results</button></div></div></section>
+
+<section id="p-uv" role="tabpanel" aria-labelledby="t-uv" hidden><h2>Universal Converter</h2><p class="desc">Convert length, volume, mass, temperature, paper sizes, and more.</p>
+<div class="grid"><form id="f-uv" class="card" novalidate><h3>Calculation input</h3>
+<label for="uv-cat">Category</label><select id="uv-cat"><option value="length">Length &amp; distance (rulers, miles, light-years)</option><option value="paper">Paper &amp; design sizes</option><option value="area">Area</option><option value="volume">Volume</option><option value="mass">Mass &amp; weight</option><option value="temp">Temperature</option><option value="speed">Speed</option><option value="pressure">Pressure</option><option value="energy">Energy</option><option value="power">Power</option><option value="force">Force</option><option value="angle">Angle</option><option value="data">Digital storage</option><option value="freq">Frequency</option><option value="fuel">Fuel economy</option></select>
+<div id="uv-std"><label for="uv-v">Value</label><input id="uv-v" inputmode="decimal" value="1" aria-describedby="e-uv-v"><small class="err" id="e-uv-v"></small>
+<label for="uv-from">From unit</label><select id="uv-from"></select><label for="uv-to">To unit</label><select id="uv-to"></select>
+<div class="row" style="margin-top:14px"><button type="button" id="uv-swap">Swap units</button></div></div>
+<div id="uv-pp" hidden><label for="uv-ps">Paper size</label><select id="uv-ps"></select><label for="uv-or">Orientation</label><select id="uv-or"><option value="p">Portrait</option><option value="l">Landscape</option></select><label for="uv-pu">Display unit</label><select id="uv-pu"><option value="0">Millimeters</option><option value="1">Centimeters</option><option value="2">Inches</option><option value="3">Points</option><option value="4">Picas</option><option value="5">Pixels at the DPI below</option></select><label for="uv-dpi">Pixel resolution (DPI)</label><input id="uv-dpi" inputmode="decimal" value="300" aria-describedby="e-uv-dpi"><small class="err" id="e-uv-dpi"></small></div>
+<div class="row" style="margin-top:14px"><button type="reset">Reset</button></div></form>
+<div class="card res"><h3>Conversion result</h3><div id="r-uv" aria-live="polite"></div><button type="button" class="cp" data-copy="uv">Copy results</button></div></div></section>
+
+<section id="p-tr" role="tabpanel" aria-labelledby="t-tr" hidden><h2>Travel Time</h2><p class="desc">Estimate how long a trip takes from distance and speed.</p>
+<div class="grid"><form id="f-tr" class="card" novalidate><h3>Calculation input</h3>
+<label for="tr-d">Distance</label><div class="row"><input id="tr-d" inputmode="decimal" value="100" aria-describedby="e-tr-d"><select id="tr-du" aria-label="Distance unit"><option value="km">Kilometers</option><option value="mi">Miles</option><option value="nmi">Nautical miles</option><option value="m">Meters</option></select></div><small class="err" id="e-tr-d"></small>
+<label for="tr-m">Travel mode</label><select id="tr-m"></select>
+<label for="tr-s">Speed (editable)</label><div class="row"><input id="tr-s" inputmode="decimal" value="60" aria-describedby="e-tr-s"><select id="tr-su" aria-label="Speed unit"><option value="kmh">km/h</option><option value="mph">mph</option><option value="kn">knots</option><option value="ms">m/s</option></select></div><small class="err" id="e-tr-s"></small>
+<label for="tr-dep">Departure (optional)</label><div class="row"><input id="tr-dep" type="text" data-dt="1" inputmode="numeric" placeholder="YYYY-MM-DD HH:MM" aria-describedby="e-tr-dep"></div><small class="err" id="e-tr-dep"></small>
+<div class="row" style="margin-top:14px"><button type="button" data-now="tr-dep">Use current</button><button type="reset">Reset</button></div></form>
+<div class="card res"><h3>Travel time</h3><div id="r-tr" aria-live="polite"></div><button type="button" class="cp" data-copy="tr">Copy results</button></div></div></section>
+
+<section id="p-ar" role="tabpanel" aria-labelledby="t-ar" hidden><h2>Area Calculator</h2><p class="desc">Measure the perimeter and area of one closed SVG shape, then convert to real-world sizes.</p>
+<details class="card" id="pv-d" open style="margin-bottom:16px"><summary style="cursor:pointer;font-weight:600">Shape preview</summary>
+<div class="row" style="margin:10px 0 8px"><label for="pv-sl" style="margin:0">Zoom</label><input type="range" id="pv-sl" min="0" max="1000" step="1" value="500" aria-describedby="pv-z"><button type="button" id="pv-fit">Fit to view</button></div>
+<div id="pv" tabindex="0" role="group" aria-label="Shape preview. Drag to pan. Use plus and minus to zoom, zero to fit, arrow keys to move." style="height:260px;min-height:140px;max-height:90vh;resize:vertical;overflow:hidden;border:1px dashed var(--bd);border-radius:8px;touch-action:none;cursor:grab;user-select:none"><p class="empty" id="pv-e" style="padding:12px">The shape preview appears here once a valid SVG is loaded.</p></div><p class="note" id="pv-z"></p></details>
+<div class="grid"><form id="f-ar" class="card" novalidate><h3>SVG input</h3>
+<label for="ar-file">Import SVG file</label><input id="ar-file" type="file" accept=".svg,image/svg+xml">
+<label for="ar-src">Or paste SVG code</label><textarea id="ar-src" rows="6" spellcheck="false" aria-describedby="e-ar-src h-ar"></textarea><small class="err" id="e-ar-src"></small>
+<p class="note" id="h-ar">The SVG must contain exactly one closed shape: a path with a single subpath ending in Z, a rect, circle, ellipse, or polygon. Anything else is rejected.</p>
+<label for="ar-dpi">Pixel density (DPI)</label><input id="ar-dpi" inputmode="decimal" value="96" aria-describedby="e-ar-dpi"><small class="err" id="e-ar-dpi"></small>
+<h3 style="margin-top:20px">Real-world scale (optional)</h3>
+<label for="ar-rt">Known real measurement</label><select id="ar-rt"><option value="p">Real perimeter</option><option value="a">Real area</option></select>
+<label for="ar-rl">Real value</label><div class="row"><input id="ar-rl" inputmode="decimal" placeholder="e.g. 40075" aria-describedby="e-ar-rl"><select id="ar-ru" aria-label="Real unit"></select></div><small class="err" id="e-ar-rl"></small>
+<div class="row" style="margin-top:14px"><button type="reset">Clear</button></div></form>
+<div class="card res"><h3>Perimeter &amp; area</h3><div id="r-ar" aria-live="polite"></div><button type="button" class="cp" data-copy="ar">Copy results</button></div></div></section>
+
+<footer><p>All calculations run locally in your browser. Nothing you enter is sent anywhere.</p></footer>
+</div><div id="toast" role="status"></div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const dim=(y,m)=>new Date(Date.UTC(y,m+1,0)).getUTCDate();
+const fmt=(n,d=10)=>new Intl.NumberFormat('en-US',{maximumFractionDigits:d}).format(n);
+const fnum=x=>x===0?'0':(Math.abs(x)<1e-6||Math.abs(x)>=1e21)?x.toExponential(6):fmt(Number(x.toPrecision(12)),12);
+const pl=(n,w,f=fmt)=>f(n)+' '+w+(n===1?'':'s');
+const pad=(n,l=2)=>String(n).padStart(l,'0');
+function num(s){s=(s||'').trim().replace(/,/g,'');return /^[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i.test(s)?Number(s):NaN}
+function parse(s){const m=/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?)?$/.exec((s||'').trim().replace(/\s+/,'T'));if(!m)return null;
+ const y=+m[1],mo=+m[2]-1,d=+m[3];if(y<YMIN||y>YMAX||mo>11||d<1||d>dim(y,mo))return null;
+ const p={y,mo,d,h:+(m[4]||0),mi:+(m[5]||0),sc:+(m[6]||0),ms:m[7]?+m[7].padEnd(3,'0'):0};return(p.h>23||p.mi>59||p.sc>59)?null:p}
+const mk=(p,u)=>u?new Date(Date.UTC(p.y,p.mo,p.d,p.h,p.mi,p.sc,p.ms)):new Date(p.y,p.mo,p.d,p.h,p.mi,p.sc,p.ms);
+const parts=(d,u)=>u?{y:d.getUTCFullYear(),mo:d.getUTCMonth(),d:d.getUTCDate(),h:d.getUTCHours(),mi:d.getUTCMinutes(),sc:d.getUTCSeconds(),ms:d.getUTCMilliseconds()}:{y:d.getFullYear(),mo:d.getMonth(),d:d.getDate(),h:d.getHours(),mi:d.getMinutes(),sc:d.getSeconds(),ms:d.getMilliseconds()};
+function addMonths(d,n,u){const p=parts(d,u),t=p.mo+n,y=p.y+Math.floor(t/12),mo=((t%12)+12)%12;return mk({...p,y,mo,d:Math.min(p.d,dim(y,mo))},u)}
+const addDays=(d,n,u)=>{const p=parts(d,u);return mk({...p,d:p.d+n},u)};
+function totalDays(a,b,u){let n=Math.floor((b-a)/864e5);while(n>0&&addDays(a,n,u)>b)n--;while(addDays(a,n+1,u)<=b)n++;return n}
+function breakdown(a,b,u){const pa=parts(a,u),pb=parts(b,u);let M=Math.max(0,(pb.y-pa.y)*12+pb.mo-pa.mo);while(M>0&&addMonths(a,M,u)>b)M--;
+ const c=addMonths(a,M,u),n=totalDays(c,b,u),r=b-addDays(c,n,u);
+ return{y:Math.floor(M/12),mo:M%12,d:n,h:Math.floor(r/36e5),mi:Math.floor(r%36e5/6e4),s:Math.floor(r%6e4/1e3),ms:r%1e3}}
+function fb(x,t){const l=[[x.y,'year'],[x.mo,'month'],[x.d,'day']];if(t)l.push([x.h,'hour'],[x.mi,'minute'],[x.s,'second'],[x.ms,'millisecond']);return l.filter(q=>q[0]).map(q=>pl(...q)).join(', ')||'0 days'}
+function setType(i,dt){const was=i.dataset.dt==='1',v=i.value.trim().replace('T',' ');i.dataset.dt=dt?'1':'';i.placeholder=dt?'YYYY-MM-DD HH:MM:SS.mmm':'YYYY-MM-DD';
+ if(was===dt)return;if(dt&&/^\d{4}-\d{2}-\d{2}$/.test(v))i.value=v+' 00:00';else if(!dt&&/^\d{4}-\d{2}-\d{2}/.test(v))i.value=v.slice(0,10)}
+function setErr(id,m){$('#e-'+id).textContent=m;$('#'+id).setAttribute('aria-invalid',!!m)}
+const R={},RB={},RW={};
+function out(id,o,msg){const el=$('#r-'+id);if(!o){el.innerHTML='<p class="empty">'+msg+'</p>';R[id]='';return}
+ RB[id]=o.big;RW[id]=o.rows;el.innerHTML='<div class="big">'+o.big+'</div><button type="button" class="mini" data-c="'+id+':b" aria-label="Copy main result">Copy</button>'+(o.sub?'<p class="sub">'+o.sub+'</p>':'')+'<dl>'+o.rows.map((r,i)=>r.length<2?'<div class="grp"><dt>'+r[0]+'</dt></div>':'<div><dt>'+r[0]+'</dt><dd>'+r[1]+'</dd><button type="button" class="mini" data-c="'+id+':'+i+'" aria-label="Copy '+r[0]+'">Copy</button></div>').join('')+'</dl>'+o.notes.map(n=>'<p class="note">'+n+'</p>').join('');
+ R[id]=['Calculation: '+o.title,'Input: '+o.inp,'Result: '+o.big,...(o.sub?[o.sub]:[]),...o.rows.map(r=>r.length<2?'':(r[2]||r[0])+': '+r[1]),...o.notes].join('\n')}
+
+function dd(){const dt=$('#dd-mode').value==='dt',u=!dt;setType($('#dd-a'),dt);setType($('#dd-b'),dt);
+ const va=$('#dd-a').value,vb=$('#dd-b').value,A=parse(va),B=parse(vb);setErr('dd-a','');setErr('dd-b','');
+ if(!va&&!vb)return out('dd',null,'Enter a start and end date to see the interval.');
+ if(!A)setErr('dd-a','Enter a valid start date. '+HT(dt));if(!B)setErr('dd-b','Enter a valid end date. '+HT(dt));
+ if(!A||!B)return out('dd',null,'Fix the date fields to see results.');
+ let a=mk(A,u),b=mk(B,u);const rev=b<a;if(rev)[a,b]=[b,a];
+ const bd=breakdown(a,b,u),days=totalDays(a,b,u),ms=u?days*864e5:b-a,w=Math.floor(days/7);
+ const pa=parts(a,u),pb=parts(b,u),cover=Math.round((Date.UTC(pb.y,pb.mo,pb.d)-Date.UTC(pa.y,pa.mo,pa.d))/864e5)+1;
+ const rows=[['Total calendar days',fmt(days)],['Weeks and days',pl(w,'week')+', '+pl(days%7,'day')]];
+ if($('#dd-inc').checked)rows.push(['Dates covered (inclusive)',fmt(cover)]);
+ rows.push([u?'Fixed-time equivalent (24-hour days)':'Total elapsed time','',],['Hours',fnum(ms/36e5)],['Minutes',fnum(ms/6e4)],['Seconds',fnum(ms/1e3)],['Milliseconds',fmt(ms)]);
+ rows[rows.length-5][1]=fmt(ms/864e5,6)+' days';
+ const notes=['Calendar values use real month and year lengths. Fixed-time values count exact milliseconds.'];
+ if(u)notes.push('Date-only values are calendar dates, so daylight-saving changes do not affect them.');
+ else{notes.push('Time zone: '+Intl.DateTimeFormat().resolvedOptions().timeZone+'.');if(a.getTimezoneOffset()!==b.getTimezoneOffset())notes.push('The local UTC offset changes between these times (for example, daylight saving), so elapsed time differs from calendar-day counts.')}
+ out('dd',{title:'Date Difference',inp:va.replace('T',' ')+' to '+vb.replace('T',' '),big:fb(bd,dt),sub:ms===0?'Start and end are identical.':rev?'End date is before start date. Showing the interval magnitude.':'End date is after start date.',rows,notes})}
+
+const FU={millisecond:1,second:1e3,minute:6e4,hour:36e5,day:864e5,week:6048e5};
+function dc(){setErr('dc-v','');const s=$('#dc-v').value;if(!s.trim())return out('dc',null,'Enter a value to convert.');
+ const v=num(s),un=$('#dc-u').value,ms=Math.round(v*FU[un]);let m='';
+ if(!isFinite(v))m='Enter a valid number, such as 90061 or 1.5.';else if(v<0)m='Enter a value of 0 or more.';else if(ms>Number.MAX_SAFE_INTEGER)m='Value is too large. The maximum is about 9 quadrillion milliseconds.';
+ if(m){setErr('dc-v',m);return out('dc',null,'Fix the value to see results.')}
+ const w=$('#dc-w').checked;let r=ms;
+ const big=[...(w?[['week',6048e5]]:[]),['day',864e5],['hour',36e5],['minute',6e4],['second',1e3],['millisecond',1]].map(([n,k])=>{const q=Math.floor(r/k);r-=q*k;return q?pl(q,n):''}).filter(Boolean).join(', ')||'0 milliseconds';
+ out('dc',{title:'Duration Converter',inp:fnum(v)+' '+un+'s',big,rows:Object.entries(FU).map(([n,k])=>[n[0].toUpperCase()+n.slice(1)+'s',fnum(ms/k)]),notes:['Fixed units: 1 day = 24 hours, 1 week = 7 days.',...(Math.abs(ms-v*FU[un])>1e-6?['Rounded to the nearest millisecond.']:[])]})}
+
+function da(){const dt=$('#da-time').checked;setType($('#da-base'),dt);const vb=$('#da-base').value,B=parse(vb);setErr('da-base','');
+ const K=['y','mo','w','d','h','mi','s','ms'],V={};let ok=true;
+ K.forEach((k,i)=>{const s=$('#da-'+k).value;const n=s.trim()===''?0:num(s);let m='';
+  if(!isFinite(n))m='Enter a valid number.';else if(n<0)m='Enter 0 or more. Use Subtract to go back.';else if(i<4&&!Number.isInteger(n))m='Use a whole number.';else if(n>1e7)m='Value is too large.';
+  setErr('da-'+k,m);if(m)ok=false;V[k]=n});
+ if(!vb&&ok&&K.every(k=>!V[k]))return out('da',null,'Enter a base date and a duration to see the result.');
+ if(!B){setErr('da-base','Enter a valid base date. '+HT(dt));ok=false}
+ if(!ok)return out('da',null,'Fix the highlighted fields to see the result.');
+ const sg=$('#da-op').value==='sub'?-1:1;let x=mk(B,false);
+ x=addMonths(addMonths(x,sg*12*V.y),sg*V.mo);x=addDays(x,sg*(7*V.w+V.d));
+ const el=Math.round(V.h*36e5+V.mi*6e4+V.s*1e3+V.ms);x=new Date(x.getTime()+sg*el);
+ const yr=x.getFullYear();if(isNaN(x)||yr<YMIN||yr>YMAX){setErr('da-base','The result is outside the supported range (years '+YMIN+' to '+YMAX+').');return out('da',null,'Adjust the inputs to see the result.')}
+ const names=['year','month','week','day','hour','minute','second','millisecond'];
+ const sum=K.map((k,i)=>V[k]?pl(V[k],names[i]):'').filter(Boolean).join(', ')||'no change';
+ const o=mk(B,false),lo=x<o?x:o,hi=x<o?o:x,bd=breakdown(lo,hi,false);
+ const showT=dt||el>0,p=parts(x,false);
+ const rows=[['Day of the week',x.toLocaleDateString('en-US',{weekday:'long'})]];
+ if(showT)rows.push(['Result time',pad(p.h)+':'+pad(p.mi)+':'+pad(p.sc)+'.'+pad(p.ms,3)]);
+ rows.push(['Applied duration',(sg<0?'Subtract ':'Add ')+sum],['Interval from original',fb(bd,showT)+' ('+fmt(totalDays(lo,hi,false))+' calendar days)']);
+ out('da',{title:'Date Arithmetic',inp:vb.replace('T',' ')+', '+(sg<0?'subtract ':'add ')+sum,big:x.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),rows,
+  notes:['Calendar-aware: years, months, weeks, and days move by calendar date; if the target month is shorter, the day is clamped to its last day. Hours and smaller units are applied as elapsed time.']})}
+
+const Y=365.2425*864e5,UU=[['millisecond',1],['second',1e3],['minute',6e4],['hour',36e5],['day',864e5],['week',6048e5],['month',Y/12],['year',Y],['decade',Y*10],['century',Y*100],['millennium',Y*1e3]];
+function uc(){const fx=$('#uc-basis').value==='fixed',f=$('#uc-from'),t=$('#uc-to');
+ [[f,4],[t,3]].forEach(([s,def])=>{[...s.options].forEach((o,i)=>o.disabled=fx&&i>5);if(s.selectedOptions[0].disabled)s.value=UU[def][0]});
+ setErr('uc-v','');const s=$('#uc-v').value;if(!s.trim())return out('uc',null,'Enter a value to convert.');
+ const v=num(s),fi=f.selectedIndex,ti=t.selectedIndex,ap=!fx&&(fi>5||ti>5);let m='';
+ if(!isFinite(v))m='Enter a valid number, such as 1 or 2.5.';else if(!isFinite(v*UU[fi][1])||Math.abs(v)>1e15)m='Value is too large. Enter a value below 1,000,000,000,000,000.';
+ if(m){setErr('uc-v',m);return out('uc',null,'Fix the value to see results.')}
+ const base=v*UU[fi][1],r=base/UU[ti][1],tag=ap?' (approximate)':'';
+ out('uc',{title:'Unit Converter',inp:fnum(v)+' '+UU[fi][0]+(v===1?'':'s')+', basis: '+(fx?'fixed duration':'average Gregorian year'),big:pl(v,UU[fi][0],fnum)+' = '+pl(r,UU[ti][0],fnum)+tag,
+  rows:UU.filter((q,i)=>!fx||i<6).map(q=>[q[0][0].toUpperCase()+q[0].slice(1)+'s',fnum(base/q[1])+(!fx&&UU.indexOf(q)>5?' (approx.)':'')]),
+  notes:fx?['Fixed duration: exact conversions using 1 day = 24 hours and 1 week = 7 days.']:['Average Gregorian year basis: 1 year = 365.2425 days, 1 month = 1/12 year, 1 decade = 10 years, 1 century = 100 years, 1 millennium = 1,000 years. Results involving months or larger units are approximate.']})}
+
+const IN=.0254,G=3.785411784,GI=4.54609,L=(n,a,b)=>[n,a*25.4,b*25.4];
+const CT={
+length:['Length & distance',[['Nanometers (nm)',1e-9],['Micrometers (µm)',1e-6],['Millimeters (mm)',1e-3],['Centimeters (cm)',.01],['Meters (m)',1],['Kilometers (km)',1e3],['Mils (thou)',IN/1e3],['Twips (1/1440 in)',IN/1440],['Points (pt, 1/72 in)',IN/72],['Picas (1/6 in)',IN/6],['CSS pixels (1/96 in)',IN/96],['Inches (in)',IN],['Hands',.1016],['Feet (ft)',.3048],['Yards (yd)',.9144],['Fathoms',1.8288],['Furlongs',201.168],['Miles (mi)',1609.344],['Nautical miles (nmi)',1852],['Astronomical units (au)',149597870700],['Light-years (ly)',9460730472580800],['Parsecs (pc)',149597870700*648000/Math.PI]],[3,11],0,'Exact definitions: 1 in = 25.4 mm, 1 pt = 1/72 in, 1 pica = 1/6 in, 1 CSS px = 1/96 in. Parsec uses its exact definition, shown to 12 significant digits.'],
+area:['Area',[['Square millimeters (mm²)',1e-6],['Square centimeters (cm²)',1e-4],['Square meters (m²)',1],['Hectares (ha)',1e4],['Square kilometers (km²)',1e6],['Square inches (in²)',IN*IN],['Square feet (ft²)',.3048**2],['Square yards (yd²)',.9144**2],['Acres',4046.8564224],['Square miles (mi²)',1609.344**2]],[2,6],0,'Acre = 4,046.8564224 m² (international acre, exact).'],
+volume:['Volume',[['Cubic millimeters (mm³)',1e-6],['Milliliters (mL = cm³)',1e-3],['Liters (L)',1],['Cubic meters (m³)',1e3],['US teaspoons',G/768],['US tablespoons',G/256],['US fluid ounces',G/128],['US cups',G/16],['US pints',G/8],['US quarts',G/4],['US gallons',G],['Imperial fluid ounces',GI/160],['Imperial pints',GI/8],['Imperial quarts',GI/4],['Imperial gallons',GI],['Cubic inches (in³)',.016387064],['Cubic feet (ft³)',28.316846592],['Oil barrels (42 US gal)',42*G]],[2,10],0,'US gallon = 3.785411784 L and imperial gallon = 4.54609 L (both exact).'],
+mass:['Mass & weight',[['Milligrams (mg)',1e-6],['Grams (g)',1e-3],['Kilograms (kg)',1],['Metric tonnes (t)',1e3],['Ounces (oz)',.028349523125],['Pounds (lb)',.45359237],['Stone (st)',6.35029318],['US short tons',907.18474],['Long tons',1016.0469088],['Carats (ct)',2e-4],['Grains (gr)',6.479891e-5]],[2,5],0,'Pound = 0.45359237 kg (exact). Mass units only; they do not account for gravity.'],
+temp:['Temperature',[['Celsius (°C)',v=>v+273.15,k=>k-273.15],['Fahrenheit (°F)',v=>(v-32)*5/9+273.15,k=>(k-273.15)*9/5+32],['Kelvin (K)',v=>v,k=>k],['Rankine (°R)',v=>v*5/9,k=>k*9/5]],[0,1],b=>b<-1e-9?'Temperature cannot be below absolute zero.':'','Conversions go through kelvin using exact offset formulas.'],
+speed:['Speed',[['Meters per second (m/s)',1],['Kilometers per hour (km/h)',1/3.6],['Miles per hour (mph)',.44704],['Knots (kn)',1852/3600],['Feet per second (ft/s)',.3048],['Speed of light (c)',299792458]],[1,2],0,''],
+pressure:['Pressure',[['Pascals (Pa)',1],['Kilopascals (kPa)',1e3],['Megapascals (MPa)',1e6],['Bar',1e5],['Millibar (mbar)',100],['Atmospheres (atm)',101325],['Pounds per square inch (psi)',.45359237*9.80665/(IN*IN)],['mmHg (conventional)',133.322387415],['Torr',101325/760]],[3,6],0,'1 atm = 101,325 Pa (exact). mmHg uses the conventional value 133.322387415 Pa.'],
+energy:['Energy',[['Joules (J)',1],['Kilojoules (kJ)',1e3],['Calories (thermochemical, cal)',4.184],['Kilocalories (kcal)',4184],['Watt-hours (Wh)',3600],['Kilowatt-hours (kWh)',3.6e6],['BTU (International Table)',1055.05585262],['Foot-pounds (ft·lbf)',1.3558179483314004],['Electronvolts (eV)',1.602176634e-19]],[3,1],0,'Calorie = 4.184 J (thermochemical). BTU uses the International Table value.'],
+power:['Power',[['Milliwatts (mW)',1e-3],['Watts (W)',1],['Kilowatts (kW)',1e3],['Megawatts (MW)',1e6],['Horsepower (mechanical)',745.6998715822702],['Horsepower (metric, PS)',735.49875],['BTU per hour',1055.05585262/3600]],[2,4],0,''],
+force:['Force',[['Millinewtons (mN)',1e-3],['Newtons (N)',1],['Kilonewtons (kN)',1e3],['Pounds-force (lbf)',4.4482216152605],['Kilograms-force (kgf)',9.80665],['Dynes',1e-5]],[1,3],0,''],
+angle:['Angle',[['Degrees (°)',1],['Radians (rad)',180/Math.PI],['Gradians (grad)',.9],['Arcminutes (′)',1/60],['Arcseconds (″)',1/3600],['Turns',360]],[0,1],0,''],
+data:['Digital storage',[['Bits',.125],['Bytes (B)',1],['Kilobytes (KB, 1,000 B)',1e3],['Megabytes (MB)',1e6],['Gigabytes (GB)',1e9],['Terabytes (TB)',1e12],['Petabytes (PB)',1e15],['Kibibytes (KiB, 1,024 B)',1024],['Mebibytes (MiB)',1024**2],['Gibibytes (GiB)',1024**3],['Tebibytes (TiB)',1024**4],['Pebibytes (PiB)',1024**5]],[4,9],0,'KB, MB, GB use powers of 1,000. KiB, MiB, GiB use powers of 1,024.'],
+freq:['Frequency',[['Hertz (Hz)',1],['Kilohertz (kHz)',1e3],['Megahertz (MHz)',1e6],['Gigahertz (GHz)',1e9],['Revolutions per minute (rpm)',1/60]],[0,4],0,''],
+fuel:['Fuel economy',[['Liters per 100 km',v=>v,b=>b],['Kilometers per liter',v=>100/v,b=>100/b],['Miles per US gallon',v=>100*G/1.609344/v,b=>100*G/1.609344/b],['Miles per imperial gallon',v=>100*GI/1.609344/v,b=>100*GI/1.609344/b]],[0,2],b=>(!isFinite(b)||b<=0)?'Enter a value greater than 0.':'','Fuel economy is an inverse relationship, so the value must be above 0.']};
+const PS=[['A0',841,1189],['A1',594,841],['A2',420,594],['A3',297,420],['A4',210,297],['A5',148,210],['A6',105,148],['A7',74,105],['A8',52,74],['A9',37,52],['A10',26,37],['B0',1000,1414],['B1',707,1000],['B2',500,707],['B3',353,500],['B4',250,353],['B5',176,250],['B6',125,176],['C4 envelope',229,324],['C5 envelope',162,229],['C6 envelope',114,162],['DL envelope',110,220],L('US Letter',8.5,11),L('US Legal',8.5,14),L('US Tabloid',11,17),L('US Executive',7.25,10.5),L('US Statement',5.5,8.5),L('US Junior Legal',5,8),L('US business card',3.5,2),['ISO business card / ID-1',85.6,53.98],L('Photo 4 × 6 in',4,6),L('Photo 5 × 7 in',5,7),L('Photo 8 × 10 in',8,10)];
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+function ruler(x){const a=Math.abs(x),n=Math.round(a*64),w=Math.floor(n/64),r=n%64,g=r?gcd(r,64):1;if(!n)return '0 in (rounded)';
+ return (x<0?'-':'')+[w||'',r?r/g+'/'+64/g:''].filter(Boolean).join(' ')+' in'+(Math.abs(a-n/64)<1e-9?' (exact)':' (rounded to 1/64 in)')}
+const tB=(u,x)=>typeof u[1]==='number'?x*u[1]:u[1](x),fB=(u,b)=>typeof u[1]==='number'?b/u[1]:u[2](b);
+function pp(){setErr('uv-dpi','');const d=num($('#uv-dpi').value);
+ if(!(d>0&&d<=1e5)){setErr('uv-dpi','Enter a DPI between 1 and 100,000.');return out('uv',null,'Fix the DPI to see results.')}
+ const p=PS[+$('#uv-ps').value];let w=p[1],h=p[2];const ls=$('#uv-or').value==='l';if(ls)[w,h]=[h,w];
+ const dl=fmt(d,4),U=[['mm',1],['cm',10],['in',25.4],['pt',25.4/72],['pica',25.4/6],['px',25.4/d,1]],X=[['Pixels at 72 DPI',25.4/72],['Pixels at 96 DPI (CSS)',25.4/96]];
+ const f=(x,u)=>u[2]?fmt(Math.round(x/u[1])):fnum(x/u[1]),sz=(u,k)=>f(w,u)+' × '+f(h,u)+' '+k,ui=U[+$('#uv-pu').value];
+ const rows=U.map(u=>[u[2]?'Pixels at '+dl+' DPI':u[0],sz(u,u[0])]).concat(X.map(x=>[x[0],sz([0,x[1],1],'px')]));
+ rows.push(['Area',fnum(w*h/100)+' cm²'],['Aspect ratio (long ÷ short side)',fmt(Math.max(w,h)/Math.min(w,h),4)]);
+ out('uv',{title:'Universal Converter (Paper & design sizes)',inp:p[0]+', '+(ls?'landscape':'portrait')+', '+dl+' DPI',big:p[0]+' ('+(ls?'landscape':'portrait')+'): '+sz(ui,ui[0]),rows,
+ notes:['Width × height. ISO sizes are defined in millimeters and US sizes in inches (1 in = 25.4 mm exactly). Pixel sizes are rounded to whole pixels.']})}
+function uv(){const cat=$('#uv-cat').value,pa=cat==='paper';$('#uv-std').hidden=pa;$('#uv-pp').hidden=!pa;if(pa)return pp();
+ const C=CT[cat],U=C[1];
+ if(uv.c!==cat){[$('#uv-from'),$('#uv-to')].forEach((s,i)=>{s.innerHTML='';U.forEach((u,j)=>s.add(new Option(u[0],j)));s.value=C[2][i]});uv.c=cat}
+ setErr('uv-v','');const s=$('#uv-v').value;if(!s.trim())return out('uv',null,'Enter a value to convert.');
+ const v=num(s),fi=+$('#uv-from').value,ti=+$('#uv-to').value;
+ if(!isFinite(v)){setErr('uv-v','Enter a valid number, such as 12 or -3.5.');return out('uv',null,'Fix the value to see results.')}
+ const b=tB(U[fi],v),m=C[3]?C[3](b):'';
+ if(m||!isFinite(b)){setErr('uv-v',m||'Value is too large.');return out('uv',null,'Fix the value to see results.')}
+ const r=fB(U[ti],b),rows=U.map(u=>[u[0],fnum(fB(u,b))]);
+ if(cat==='length')rows.push(['Nearest ruler fraction',ruler(b/IN)]);
+ out('uv',{title:'Universal Converter ('+C[0]+')',inp:fnum(v)+' '+U[fi][0],big:fnum(v)+' '+U[fi][0]+' = '+fnum(r)+' '+U[ti][0],rows,notes:[...(C[4]?[C[4]]:[]),'Results are shown to 12 significant digits.']})}
+const MD=[['ox','Ox cart',4],['walk','Walking',5],['donkey','Donkey (loaded)',5],['carriage','Horse carriage',8],['camel','Camel (riding)',10],['run','Running (jogging)',10],['bike','Bicycle',15],['horse','Horse (single rider)',20],['ship','Cargo ship (~14 knots)',26],['moto','Motorcycle',50],['car','Car',60],['bus','Bus (intercity)',70],['train','Train (conventional)',80],['heli','Helicopter',200],['hsr','High-speed train',250],['air','Airplane (commercial)',850],['sst','Supersonic jet (Concorde cruise)',2180],['orbit','Rocket (low Earth orbit speed)',28000],['probe','Fastest spacecraft (Parker Solar Probe, record)',692000]],DF={km:1e3,mi:1609.344,m:1,nmi:1852},SF={kmh:1/3.6,mph:.44704,kn:1852/3600,ms:1};
+const dur=s=>{s=Math.round(s);return [[Math.floor(s/86400),'day'],[Math.floor(s%86400/3600),'hour'],[Math.floor(s%3600/60),'minute'],[s%60,'second']].filter(q=>q[0]).map(q=>pl(...q)).join(', ')||'0 seconds'};
+function tr(e){const mo=$('#tr-m'),id=e&&e.target&&e.target.id;
+ if(id==='tr-m'&&mo.value!=='custom'){$('#tr-su').value='kmh';$('#tr-s').value=MD.find(m=>m[0]===mo.value)[2]}else if(id==='tr-s'||id==='tr-su')mo.value='custom';
+ ['d','s','dep'].forEach(k=>setErr('tr-'+k,''));const sd=$('#tr-d').value,dv=$('#tr-dep').value;
+ if(!sd.trim())return out('tr',null,'Enter a distance to see the travel time.');
+ const d=num(sd),s=num($('#tr-s').value),dep=dv?parse(dv):null;let ok=true;
+ if(!isFinite(d)||d<0){setErr('tr-d',isFinite(d)?'Enter a distance of 0 or more.':'Enter a valid number, such as 120 or 42.5.');ok=false}
+ if(!(s>0)||!isFinite(s)){setErr('tr-s','Enter a speed greater than 0.');ok=false}
+ if(dv&&!dep){setErr('tr-dep','Enter a valid departure date and time. '+HT(true));ok=false}
+ const m=d*DF[$('#tr-du').value],v=s*SF[$('#tr-su').value],t=m/v;
+ if(ok&&(!isFinite(t)||t>3e11)){setErr('tr-d','The distance or speed is too extreme to calculate.');ok=false}
+ let arr=null;if(ok&&dep){arr=new Date(mk(dep,false).getTime()+Math.round(t*1000));if(isNaN(arr)||arr.getFullYear()>YMAX){setErr('tr-dep','The arrival date would be beyond year '+YMAX+'.');ok=false}}
+ if(!ok)return out('tr',null,'Fix the highlighted fields to see results.');
+ const rows=[['Total hours',fnum(t/3600)],['Total minutes',fnum(t/60)],['Total seconds',fnum(t)],['Distance',fnum(m/1e3)+' km / '+fnum(m/1609.344)+' mi'],['Speed',fnum(v*3.6)+' km/h / '+fnum(v/.44704)+' mph']];
+ if(arr)rows.push(['Arrival (local time)',arr.toLocaleString('en-US',{dateStyle:'full',timeStyle:'medium'})]);
+ MD.forEach(x=>rows.push([x[1]+' ('+fmt(x[2])+' km/h)',dur(m/(x[2]/3.6))]));
+ out('tr',{title:'Travel Time',inp:fnum(d)+' '+$('#tr-du').selectedOptions[0].text.toLowerCase()+' at '+fnum(s)+' '+$('#tr-su').selectedOptions[0].text+' ('+mo.selectedOptions[0].text+')'+(dv?', departing '+dv.replace('T',' '):''),big:dur(t),sub:'Mode: '+mo.selectedOptions[0].text,rows,
+ notes:['Travel time = distance ÷ speed at a constant speed. It excludes stops, traffic, and boarding. Preset speeds are typical averages; edit the speed to customize. Space presets are idealized: the Parker Solar Probe record (692,000 km/h, December 2024) is a peak speed relative to the Sun, not a sustained one.']})}
+const NS='http://www.w3.org/2000/svg',NR=/[-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/gi,LU={m:1,km:1e3,mi:1609.344,ft:.3048,nmi:1852};
+const MS=document.createElementNS(NS,'svg');MS.setAttribute('width','0');MS.setAttribute('height','0');MS.style.cssText='position:absolute;visibility:hidden';document.body.appendChild(MS);
+const mul=(A,B)=>[A[0]*B[0]+A[2]*B[1],A[1]*B[0]+A[3]*B[1],A[0]*B[2]+A[2]*B[3],A[1]*B[2]+A[3]*B[3],A[0]*B[4]+A[2]*B[5]+A[4],A[1]*B[4]+A[3]*B[5]+A[5]];
+function tf(s){let m=[1,0,0,1,0,0];const r=/(\w+)\s*\(([^)]*)\)/g,R=Math.PI/180;let q;
+ while(q=r.exec(s)){const a=(q[2].match(NR)||[]).map(Number),k=q[1];let t;
+  if(k==='matrix'&&a.length===6)t=a;else if(k==='translate')t=[1,0,0,1,a[0]||0,a[1]||0];else if(k==='scale')t=[a[0],0,0,a.length>1?a[1]:a[0],0,0];
+  else if(k==='rotate'){const c=Math.cos(a[0]*R),n=Math.sin(a[0]*R),x=a[1]||0,y=a[2]||0;t=mul(mul([1,0,0,1,x,y],[c,n,-n,c,0,0]),[1,0,0,1,-x,-y])}
+  else if(k==='skewX')t=[1,0,Math.tan(a[0]*R),1,0,0];else if(k==='skewY')t=[1,Math.tan(a[0]*R),0,1,0,0];else throw 0;
+  if(t.some(x=>!isFinite(x)))throw 0;m=mul(m,t)}return m}
+function shapeD(el){const k=el.localName,E=m=>{throw Error(m)},g=(n,d)=>{const v=el.getAttribute(n);if(v==null||!v.trim())return d;const x=parseFloat(v);if(!isFinite(x)||/%/.test(v))E('The <'+k+'> attribute '+n+' must be a plain number.');return x};
+ if(k==='line')E('A <line> is not a closed shape.');
+ if(k==='path'){const d=(el.getAttribute('d')||'').trim();
+  if(!d||!/^[MmZzLlHhVvCcSsQqTtAa\d eE+\-.,\s]+$/.test(d))E('The path data is empty or contains unsupported characters.');
+  if((d.match(/[Mm]/g)||[]).length!==1||!/^[Mm]/.test(d))E('The path must be a single subpath that starts with one M command.');
+  if((d.match(/[Zz]/g)||[]).length!==1||!/[Zz]$/.test(d))E('The path must be closed with a single Z at the end.');return d}
+ if(k==='rect'){const x=g('x',0),y=g('y',0),w=g('width',0),h=g('height',0);let rx=g('rx',NaN),ry=g('ry',NaN);
+  if(!(w>0&&h>0))E('The <rect> needs a width and height above 0.');
+  if(isNaN(rx))rx=isNaN(ry)?0:ry;if(isNaN(ry))ry=rx;rx=Math.min(rx,w/2);ry=Math.min(ry,h/2);
+  if(!(rx>0&&ry>0))return 'M'+x+' '+y+'H'+(x+w)+'V'+(y+h)+'H'+x+'Z';
+  const a='A'+rx+' '+ry+' 0 0 1 ';return 'M'+(x+rx)+' '+y+'H'+(x+w-rx)+a+(x+w)+' '+(y+ry)+'V'+(y+h-ry)+a+(x+w-rx)+' '+(y+h)+'H'+(x+rx)+a+x+' '+(y+h-ry)+'V'+(y+ry)+a+(x+rx)+' '+y+'Z'}
+ if(k==='circle'||k==='ellipse'){const cx=g('cx',0),cy=g('cy',0),rx=k==='circle'?g('r',0):g('rx',0),ry=k==='circle'?rx:g('ry',0);
+  if(!(rx>0&&ry>0))E('The <'+k+'> needs a radius above 0.');
+  return 'M'+(cx-rx)+' '+cy+'A'+rx+' '+ry+' 0 1 0 '+(cx+rx)+' '+cy+'A'+rx+' '+ry+' 0 1 0 '+(cx-rx)+' '+cy+'Z'}
+ const n=(el.getAttribute('points')||'').match(NR)||[];
+ if(n.length%2||n.length<6)E('The <'+k+'> needs at least 3 points.');
+ if(k==='polyline'&&!(n.length>=8&&+n[0]===+n[n.length-2]&&+n[1]===+n[n.length-1]))E('A <polyline> must end at its starting point to be closed. Use a <polygon> instead.');
+ let d='M';for(let i=0;i<n.length;i+=2)d+=(i?'L':'')+n[i]+' '+n[i+1];return d+'Z'}
+function measure(d,m){const p=document.createElementNS(NS,'path');p.setAttribute('d',d);MS.appendChild(p);
+ try{const L=p.getTotalLength();if(!(L>0)||!isFinite(L))throw Error('The shape geometry could not be measured.');
+  const N=10000,P=[];for(let i=0;i<N;i++){const q=p.getPointAtLength(L*i/N);P.push([q.x,q.y])}
+  const x0=P[0][0],y0=P[0][1];let s=0,x1=1/0,y1=1/0,x2=-1/0,y2=-1/0,sp=0;
+  for(let i=0;i<N;i++){const A=P[i],B=P[(i+1)%N];s+=(A[0]-x0)*(B[1]-y0)-(B[0]-x0)*(A[1]-y0);
+   const tx=m[0]*A[0]+m[2]*A[1]+m[4],ty=m[1]*A[0]+m[3]*A[1]+m[5],ux=m[0]*B[0]+m[2]*B[1]+m[4],uy=m[1]*B[0]+m[3]*B[1]+m[5];
+   x1=Math.min(x1,tx);x2=Math.max(x2,tx);y1=Math.min(y1,ty);y2=Math.max(y2,ty);sp+=Math.hypot(ux-tx,uy-ty)}
+  const det=m[0]*m[3]-m[1]*m[2],n1=m[0]**2+m[1]**2,n2=m[2]**2+m[3]**2,sim=Math.abs(n1-n2)<1e-9*n1&&Math.abs(m[0]*m[2]+m[1]*m[3])<1e-9*n1;
+  return{area:Math.abs(s/2*det),per:sim?L*Math.sqrt(n1):sp,x:x1,y:y1,w:x2-x1,h:y2-y1}}finally{p.remove()}}
+const AU={m2:1,km2:1e6,ha:1e4,acre:4046.8564224,mi2:1609.344**2,ft2:.3048**2};
+function arLoad(src){const bad=m=>({err:m});
+ const doc=new DOMParser().parseFromString(src,'image/svg+xml');
+ if(doc.querySelector('parsererror')||doc.documentElement.localName!=='svg')return bad('This is not valid SVG markup. The root element must be <svg>.');
+ const odd=doc.querySelector('text,image,use,foreignObject,script');if(odd)return bad('Unsupported <'+odd.localName+'> element. The SVG may contain only one closed shape.');
+ const S=[...doc.querySelectorAll('path,rect,circle,ellipse,polygon,polyline,line')];
+ if(S.length!==1)return bad(S.length?'The SVG must contain exactly one shape, but '+S.length+' were found.':'No supported shape found. Use a <path>, <rect>, <circle>, <ellipse>, or <polygon>.');
+ const el=S[0];let d,m=[1,0,0,1,0,0],r;
+ try{d=shapeD(el);for(let n=el;n&&n.nodeType===1;n=n.parentNode){const t=n.getAttribute('transform');if(t)m=mul(tf(t),m)}r=measure(d,m)}catch(x){return bad((x&&x.message)||'The shape or its transform could not be read.')}
+ if(!(r.area>0&&r.w>0&&r.h>0))return bad('The shape has no measurable area.');
+ return{r,d,m,name:el.localName}}
+const LEN=[['Millimeters (mm)',1e-3],['Centimeters (cm)',.01],['Meters (m)',1],['Kilometers (km)',1e3],['Inches (in)',IN],['Feet (ft)',.3048],['Yards (yd)',.9144],['Miles (mi)',1609.344],['Nautical miles (nmi)',1852]],
+ARE=[['Square millimeters (mm\u00b2)',1e-6],['Square centimeters (cm\u00b2)',1e-4],['Square meters (m\u00b2)',1],['Hectares (ha)',1e4],['Square kilometers (km\u00b2)',1e6],['Square inches (in\u00b2)',IN**2],['Square feet (ft\u00b2)',.3048**2],['Square yards (yd\u00b2)',.9144**2],['Acres (ac)',4046.8564224],['Square miles (mi\u00b2)',1609.344**2]];
+function ar(e){const src=$('#ar-src').value.trim(),ty=$('#ar-rt').value,ru=$('#ar-ru'),UL=ty==='p'?LEN:ARE;
+ if(ar.u!==ty){ru.innerHTML='';UL.forEach((u,i)=>{const s=i===(ty==='p'?3:4);ru.add(new Option(u[0],i,s,s))});ar.u=ty}
+ ['src','dpi','rl'].forEach(k=>setErr('ar-'+k,''));
+ if(e&&e.target&&e.target.id==='ar-src'&&src&&src!==ar.k){clearTimeout(ar.t);ar.t=setTimeout(ar,400);return}
+ if(!src){ar.k=null;pvClear();return out('ar',null,'Import or paste an SVG that contains one closed shape.')}
+ if(ar.k!==src){ar.k=src;ar.c=arLoad(src)}
+ const c=ar.c;if(c.err){pvClear();setErr('ar-src',c.err);return out('ar',null,'The SVG input is invalid. Fix the error to see results.')}
+ const r=c.r,d=c.d,m=c.m,dpi=num($('#ar-dpi').value);pvSet(d,m,r);
+ if(!(dpi>0)){setErr('ar-dpi','Enter a DPI above 0.');return out('ar',null,'Fix the DPI to see results.')}
+ const P=r.per,A=r.area,dl=fmt(dpi,4),pm=IN/dpi,rows=[['Measured in the SVG (pixels)'],['Shape',c.name==='path'?'Closed path':'Closed '+c.name],['Bounding box',fnum(r.w)+' \u00d7 '+fnum(r.h)+' pixels'],['Perimeter',fnum(P)+' pixels'],['Area',fnum(A)+' square pixels']];
+ rows.push(['Physical size at '+dl+' DPI: perimeter']);LEN.concat([['Points (pt)',IN/72],['Picas (pc)',IN/6]]).forEach(u=>rows.push([u[0],fnum(P*pm/u[1]),'Perimeter at '+dl+' DPI, '+u[0]]));
+ rows.push(['Physical size at '+dl+' DPI: area']);ARE.forEach(u=>rows.push([u[0],fnum(A*pm*pm/u[1]),'Area at '+dl+' DPI, '+u[0]]));
+ const rv=$('#ar-rl').value.trim(),notes=['Measurements use SVG user units, treated as pixels. A scaled viewBox or CSS size changes the real pixel size.','Curves are sampled at 10,000 points. Self-intersecting outlines are not detected, so use a simple outline.'];
+ let sub='Area: '+fnum(A)+' square pixels',sc='';
+ if(rv){const R=num(rv),f=UL[+ru.value][1],k=ty==='p'?R*f/P:Math.sqrt(R*f/A),N=k/pm;
+  if(!(R>0))setErr('ar-rl','Enter a real '+(ty==='p'?'perimeter':'area')+' above 0.');
+  else if(!isFinite(N))setErr('ar-rl','This value is too large.');
+  else{sc='1 : '+fmt(Number(N.toPrecision(6)),3);sub+=' \u00b7 Scale '+sc;
+   rows.push(['Real-world scale'],['Map scale (at '+dl+' DPI)',sc],['Real size of 1 pixel',fnum(k)+' meters']);
+   const pg=ty==='p'?'Real perimeter (given)':'Estimated real perimeter',ag=ty==='a'?'Real area (given)':'Estimated real area';
+   rows.push([pg]);LEN.forEach(u=>rows.push([u[0],fnum(P*k/u[1]),pg+', '+u[0]]));
+   rows.push([ag]);ARE.forEach(u=>rows.push([u[0],fnum(A*k*k/u[1]),ag+', '+u[0]]));
+   notes.push('Scale 1 : N compares one pixel at the chosen DPI with the real distance it represents. It assumes one uniform scale and ignores map projection distortion, so real-world values are approximate.')}}
+ out('ar',{title:'Area Calculator',inp:'SVG '+c.name+' shape, '+dl+' DPI'+(sc?', real '+(ty==='p'?'perimeter ':'area ')+rv+' '+ru.selectedOptions[0].text:''),big:fnum(P)+' pixels perimeter',sub,rows,notes});}
+const PV={s:1,cx:0,cy:0,fs:1};
+const pvBox=()=>{const b=$('#pv');return[b.clientWidth||320,b.clientHeight||260]};
+function pvView(){if(!PV.svg)return;const[w,h]=pvBox();PV.svg.setAttribute('viewBox',[PV.cx-w*PV.s/2,PV.cy-h*PV.s/2,w*PV.s,h*PV.s].join(' '));const z=PV.fs/PV.s,pc=fmt(Number((z*100).toPrecision(4)),2)+'%',sl=$('#pv-sl');sl.value=Math.log(z/.05)/Math.log(1e5)*1000;sl.setAttribute('aria-valuetext',pc);$('#pv-z').textContent='Zoom '+pc+'. Drag to pan, scroll or use the slider to zoom. Drag the bottom edge of the box to resize it.'}
+function pvFit(){if(!PV.r)return;const[w,h]=pvBox(),r=PV.r;PV.hid=!$('#pv').clientWidth;PV.fs=Math.max(r.w/(w*.9),r.h/(h*.9));PV.s=PV.fs;PV.cx=r.x+r.w/2;PV.cy=r.y+r.h/2;pvView()}
+function pvZoom(f,px,py){if(!PV.svg)return;const[w,h]=pvBox();px=px==null?w/2:px;py=py==null?h/2:py;const s=Math.min(Math.max(PV.s*f,PV.fs/5000),PV.fs*20),wx=PV.cx+(px-w/2)*PV.s,wy=PV.cy+(py-h/2)*PV.s;PV.cx=wx-(px-w/2)*s;PV.cy=wy-(py-h/2)*s;PV.s=s;pvView()}
+function pvClear(){PV.key=null;PV.svg=null;PV.r=null;$('#pv').querySelectorAll('svg').forEach(x=>x.remove());$('#pv-e').hidden=false;$('#pv-z').textContent=''}
+function pvSet(d,m,r){$('#pv-e').hidden=true;PV.r=r;if(PV.key===ar.k&&PV.svg){pvView();return}
+ PV.key=ar.k;$('#pv').querySelectorAll('svg').forEach(x=>x.remove());
+ const sv=document.createElementNS(NS,'svg'),pd=document.createElementNS(NS,'path');
+ sv.setAttribute('role','img');sv.setAttribute('aria-label','Preview of the detected shape');sv.style.cssText='width:100%;height:100%;display:block;color:var(--ac)';
+ pd.setAttribute('d',d);pd.setAttribute('transform','matrix('+m.join(' ')+')');[['fill','currentColor'],['fill-opacity','.15'],['stroke','currentColor'],['stroke-width','2'],['vector-effect','non-scaling-stroke']].forEach(a=>pd.setAttribute(a[0],a[1]));
+ sv.appendChild(pd);$('#pv').appendChild(sv);PV.svg=sv;pvFit()}
+const YMIN=1400,YMAX=3000,MN=['January','February','March','April','May','June','July','August','September','October','November','December'],
+HT=dt=>'Use '+(dt?'YYYY-MM-DD HH:MM[:SS[.mmm]]':'YYYY-MM-DD')+', years '+YMIN+' to '+YMAX+'.';
+const CAL=document.createElement('div');CAL.id='cal';CAL.setAttribute('role','dialog');CAL.setAttribute('aria-label','Choose a date');CAL.hidden=true;document.body.appendChild(CAL);
+let cs=null;
+const GMIN=Date.UTC(YMIN,0,1)/864e5,GMAX=Date.UTC(YMAX,11,31)/864e5,
+CALS=[['gregory','Gregorian (Masehi)'],['islamic-umalqura','Islamic (Hijriyah, Umm al-Qura)'],['islamic-civil','Islamic (Hijriyah, civil/tabular)'],['chinese','Chinese lunisolar'],['hebrew','Hebrew'],['persian','Persian (Solar Hijri)'],['buddhist','Buddhist (Thai)'],['indian','Indian National (Saka)'],['coptic','Coptic'],['ethiopic','Ethiopic']].filter(c=>c[0]==='gregory'||(()=>{try{return new Intl.DateTimeFormat('en-u-ca-'+c[0]).resolvedOptions().calendar===c[0]}catch(e){return false}})()),
+CF={},CL=new Map;let CID='gregory';
+function info(g){if(CID==='gregory'){const d=new Date(g*864e5);return{y:d.getUTCFullYear(),mo:MN[d.getUTCMonth()],d:d.getUTCDate()}}
+ const f=CF[CID]||(CF[CID]=new Intl.DateTimeFormat('en-u-ca-'+CID+'-nu-latn',{timeZone:'UTC',year:'numeric',month:CID==='chinese'?'numeric':'long',day:'numeric'})),r={};
+ f.formatToParts(new Date(g*864e5)).forEach(p=>r[p.type]=p.value);
+ return{y:+(r.relatedYear||r.year),mo:CID==='chinese'?'Month '+r.month.replace('bis',' (leap)'):r.month,d:+r.day}}
+function lay(Y){const k=CID+Y;if(CL.has(k))return CL.get(k);let lo=GMIN-500,hi=GMAX+500,res=null;
+ if(info(hi).y>=Y){while(lo<hi){const m=Math.floor((lo+hi)/2);if(info(m).y>=Y)hi=m;else lo=m+1}
+  if(info(lo).y===Y){const M=[];for(let g=lo,n=0;n<400;g++,n++){const i=info(g);if(i.y!==Y)break;let q=M[M.length-1];if(!q||q.n!==i.mo){q={n:i.mo,days:[]};M.push(q)}q.days.push({g,d:i.d})}res=M}}
+ CL.set(k,res);return res}
+const yr=()=>[info(GMIN).y,info(GMAX).y],fo=M=>{for(const q of M)for(const x of q.days)if(x.g>=GMIN&&x.g<=GMAX)return x.g};
+const gd=g=>{const d=new Date(g*864e5);return d.getUTCDate()+' '+MN[d.getUTCMonth()].slice(0,3)+' '+d.getUTCFullYear()},
+gm=q=>gd(q.days[0].g)+' \u2013 '+gd(q.days[q.days.length-1].g),gy=L=>gd(L[0].days[0].g)+' \u2013 '+gd(L[L.length-1].days[L[L.length-1].days.length-1].g);
+function calDraw(){const L=lay(cs.y)||[],p=parse(cs.inp.value),gs=p?Date.UTC(p.y,p.mo,p.d)/864e5:NaN,n=new Date(),gt=Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())/864e5,ok=g=>g>=GMIN&&g<=GMAX,[a,b]=yr();
+ let h='<select id="cal-c" aria-label="Calendar system">'+CALS.map(c=>'<option value="'+c[0]+'"'+(c[0]===CID?' selected':'')+'>'+c[1]+'</option>').join('')+'</select><div class="yr" style="margin-top:8px"><button type="button" data-cal="py" aria-label="Previous year">\u2039</button><input id="cal-y" inputmode="numeric" maxlength="4" value="'+cs.y+'" aria-label="Year, '+a+' to '+b+'"><button type="button" data-cal="go">Go to</button><button type="button" data-cal="ny" aria-label="Next year">\u203a</button></div><small class="err" id="cal-e" role="alert"></small>';
+ if(cs.view==='m')h+='<div class="cg m">'+L.map((q,i)=>'<button type="button" data-cal="m'+i+'" class="'+(q.days.some(x=>x.g===gs)?'sel':q.days.some(x=>x.g===gt)?'td':'')+'" title="Gregorian: '+gm(q)+'"'+(q.days.some(x=>ok(x.g))?'':' disabled')+'>'+q.n+'</button>').join('')+'</div>'+(cs.set?'<p class="note" id="cal-s">Set to year: '+cs.y+'</p>':'')+(L.length?'<p class="note" id="cal-g"><strong>Gregorian (CE):</strong> year '+cs.y+' ('+CALS.find(c=>c[0]===CID)[1]+') = '+gy(L)+'</p>':'');
+ else{const q=L[cs.mi],f=new Date(q.days[0].g*864e5).getUTCDay();
+  h+='<div class="row" style="margin:10px 0 0;justify-content:space-between"><button type="button" data-cal="bm">\u2039 Months</button><strong>'+q.n+' '+cs.y+'</strong></div><div class="cg d">'+['Su','Mo','Tu','We','Th','Fr','Sa'].map(w=>'<span class="wd">'+w+'</span>').join('')+'<span></span>'.repeat(f)+q.days.map(x=>'<button type="button" data-cal="d'+(x.g-GMIN)+'" class="'+(x.g===gs?'sel':x.g===gt?'td':'')+'"'+(ok(x.g)?'':' disabled')+' title="Gregorian '+new Date(x.g*864e5).toISOString().slice(0,10)+'">'+x.d+'</button>').join('')+'</div><p class="note" id="cal-g"><strong>Gregorian (CE):</strong> '+q.n+' '+cs.y+' = '+gm(q)+'</p>'}
+ if(CID!=='gregory')h+='<p class="note">The input always stores the Gregorian date. Lunar calendars can differ by a day from local moon sighting.</p>';
+ CAL.innerHTML=h}
+function calClose(){CAL.hidden=true;if(cs&&cs.btn)cs.btn.focus()}
+function calPick(g){const i=cs.inp,dt=i.dataset.dt==='1',p=parse(i.value),d=new Date(g*864e5),t=p?pad(p.h)+':'+pad(p.mi)+(p.sc||p.ms?':'+pad(p.sc)+(p.ms?'.'+pad(p.ms,3):''):''):'00:00';
+ i.value=d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate())+(dt?' '+t:'');i.dispatchEvent(new Event('input',{bubbles:true}));calClose()}
+function calOpen(btn){if(!CAL.hidden&&cs&&cs.btn===btn){CAL.hidden=true;return}
+ const i=$('#'+btn.dataset.pick),p=parse(i.value),n=new Date(),g=p?Date.UTC(p.y,p.mo,p.d)/864e5:Math.min(Math.max(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())/864e5,GMIN),GMAX);
+ cs={inp:i,btn,g,y:info(g).y,mi:0,view:'m',set:false};CAL.hidden=false;calDraw();const r=btn.getBoundingClientRect();
+ CAL.style.left=Math.max(8,Math.min(r.left+scrollX,scrollX+innerWidth-CAL.offsetWidth-8))+'px';CAL.style.top=(r.bottom+scrollY+6)+'px';$('#cal-y').focus()}
+CAL.addEventListener('click',e=>{e.stopPropagation();const b=e.target.closest('[data-cal]');if(!b)return;const k=b.dataset.cal;let q;
+ if(k==='go'||k==='py'||k==='ny'){const[a,z]=yr(),y=k==='go'?num($('#cal-y').value):cs.y+(k==='py'?-1:1);
+  if(!Number.isInteger(y)||y<a||y>z||!lay(y)){$('#cal-e').textContent='Enter a whole year from '+a+' to '+z+'.';$('#cal-y').setAttribute('aria-invalid','true');return}
+  cs.y=y;cs.view='m';cs.set=true;cs.g=fo(lay(y));calDraw();$('#cal-y').focus()}
+ else if(k==='bm'){cs.view='m';calDraw()}
+ else if(q=/^m(\d+)$/.exec(k)){cs.mi=+q[1];cs.g=fo([lay(cs.y)[cs.mi]])||cs.g;cs.view='d';cs.set=false;calDraw();CAL.querySelector('.cg.d button:not(:disabled)').focus()}
+ else if(q=/^d(\d+)$/.exec(k))calPick(+q[1]+GMIN)});
+CAL.addEventListener('change',e=>{if(e.target.id!=='cal-c')return;CID=e.target.value;cs.y=info(cs.g).y;cs.view='m';cs.set=false;calDraw()});
+CAL.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='cal-y'){e.preventDefault();CAL.querySelector('[data-cal=go]').click()}});
+document.addEventListener('click',e=>{if(!CAL.hidden&&!e.target.closest('[data-pick]'))CAL.hidden=true});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!CAL.hidden)calClose()});
+['dd-a','dd-b','da-base','tr-dep'].forEach(id=>{const i=$('#'+id),b=document.createElement('button');b.type='button';b.textContent='Pick date';b.dataset.pick=id;b.setAttribute('aria-haspopup','dialog');b.onclick=()=>calOpen(b);i.after(b)});
+const FN={dd,dc,da,uc,uv,tr,ar},T=['uv','du','tr','ar'];
+function tab(id){T.forEach(t=>{const on=t===id;$('#t-'+t).setAttribute('aria-selected',on);$('#t-'+t).tabIndex=on?0:-1;$('#p-'+t).hidden=!on});['dd','dc','da','uc'].forEach(s=>$('#p-'+s).hidden=id!=='du'||$('#du-mode').value!==s)}
+let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),2200)}
+function nowStr(dt){const n=new Date(),d=n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate());return dt?d+' '+pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds())+'.'+pad(n.getMilliseconds(),3):d}
+function theme(v){const r=document.documentElement;v==='system'?r.removeAttribute('data-theme'):r.setAttribute('data-theme',v);try{localStorage.setItem('irc-theme',v)}catch(e){}}
+
+$('#da-f').innerHTML=[['y','Years'],['mo','Months'],['w','Weeks'],['d','Days'],['h','Hours'],['mi','Minutes'],['s','Seconds'],['ms','Milliseconds']].map(([k,l])=>'<div><label for="da-'+k+'">'+l+'</label><input id="da-'+k+'" inputmode="decimal" value="0" aria-describedby="e-da-'+k+'"><small class="err" id="e-da-'+k+'"></small></div>').join('');
+UU.forEach(([n])=>{const l=n[0].toUpperCase()+n.slice(1);['from','to'].forEach(k=>$('#uc-'+k).add(new Option(l,n)))});
+$('#uc-from').value='week';$('#uc-to').value='hour';
+T.forEach((t,i)=>{$('#t-'+t).onclick=()=>tab(t);$('#t-'+t).onkeydown=e=>{const d={ArrowRight:1,ArrowLeft:-1}[e.key];if(d){const n=T[(i+d+T.length)%T.length];tab(n);$('#t-'+n).focus()}};
+ });Object.keys(FN).forEach(t=>{const f=$('#f-'+t);f.addEventListener('input',FN[t]);f.addEventListener('change',FN[t]);f.addEventListener('reset',()=>setTimeout(FN[t],0));f.addEventListener('submit',e=>e.preventDefault())});
+$('#dd-swap').onclick=()=>{const a=$('#dd-a'),b=$('#dd-b');[a.value,b.value]=[b.value,a.value];dd()};
+$('#uc-swap').onclick=()=>{const a=$('#uc-from'),b=$('#uc-to');[a.value,b.value]=[b.value,a.value];uc()};
+$$('[data-now]').forEach(b=>b.onclick=()=>{const i=$('#'+b.dataset.now);i.value=nowStr(i.dataset.dt==='1');FN[b.closest('form').id.slice(2)]()});
+$$('[data-copy]').forEach(b=>b.onclick=async()=>{const t=R[b.dataset.copy];if(!t)return toast('Nothing to copy yet. Enter valid values first.');
+ try{await navigator.clipboard.writeText(t)}catch(e){const x=document.createElement('textarea');x.value=t;document.body.appendChild(x);x.select();try{document.execCommand('copy')}catch(_){}x.remove()}
+ toast('Results copied to clipboard.')});
+let sv='light';try{sv=localStorage.getItem('irc-theme')||'light'}catch(e){}
+$('#theme').value=sv;theme(sv);$('#theme').onchange=e=>theme(e.target.value);
+PS.forEach((p,i)=>$('#uv-ps').add(new Option(p[0],i,i===4,i===4)));
+$('#uv-swap').onclick=()=>{const a=$('#uv-from'),b=$('#uv-to');[a.value,b.value]=[b.value,a.value];uv()};
+$('#f-uv').addEventListener('reset',()=>{uv.c=null});
+async function cp(t,m){try{await navigator.clipboard.writeText(t)}catch(e){const x=document.createElement('textarea');x.value=t;document.body.appendChild(x);x.select();try{document.execCommand('copy')}catch(_){}x.remove()}toast(m)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;const[i,k]=b.dataset.c.split(':');cp(k==='b'?RB[i]:(RW[i][k][2]||RW[i][k][0])+': '+RW[i][k][1],'Copied: '+(k==='b'?'main result':RW[i][k][0]))});
+$('#du-mode').onchange=()=>tab('du');
+MD.forEach(m=>{const s=m[0]==='car';$('#tr-m').add(new Option(m[1]+' ('+fmt(m[2])+' km/h)',m[0],s,s))});$('#tr-m').add(new Option('Custom speed','custom'));
+$('#ar-file').addEventListener('change',e=>{const f=e.target.files[0];if(f)f.text().then(t=>{$('#ar-src').value=t;ar()})});
+{const b=$('#pv');let dr=null;
+ b.addEventListener('pointerdown',e=>{const q=b.getBoundingClientRect();if(e.clientX>q.right-18&&e.clientY>q.bottom-18)return;dr=[e.clientX,e.clientY];b.setPointerCapture(e.pointerId);b.style.cursor='grabbing'});
+ b.addEventListener('pointermove',e=>{if(!dr||!PV.svg)return;PV.cx-=(e.clientX-dr[0])*PV.s;PV.cy-=(e.clientY-dr[1])*PV.s;dr=[e.clientX,e.clientY];pvView()});
+ ['pointerup','pointercancel'].forEach(t=>b.addEventListener(t,()=>{dr=null;b.style.cursor='grab'}));
+ b.addEventListener('wheel',e=>{if(!PV.svg)return;e.preventDefault();const q=b.getBoundingClientRect();pvZoom(e.deltaY<0?1.25:.8,e.clientX-q.left,e.clientY-q.top)},{passive:false});
+ b.addEventListener('keydown',e=>{if(!PV.svg)return;const k=e.key,st=40*PV.s,mv={ArrowLeft:[-st,0],ArrowRight:[st,0],ArrowUp:[0,-st],ArrowDown:[0,st]}[k];
+  if(k==='+'||k==='=')pvZoom(1.5);else if(k==='-')pvZoom(1/1.5);else if(k==='0')pvFit();else if(mv){PV.cx+=mv[0];PV.cy+=mv[1];pvView()}else return;e.preventDefault()});
+ $('#pv-sl').oninput=e=>{if(PV.svg){PV.s=PV.fs/(.05*Math.pow(1e5,e.target.value/1000));pvView()}};$('#pv-fit').onclick=pvFit;
+ new ResizeObserver(()=>{if(!PV.svg)return;if(PV.hid&&b.clientWidth)pvFit();else pvView()}).observe(b)}
+$('#f-ar').addEventListener('reset',()=>{ar.u=null;ar.k=null});
+tab('uv');Object.values(FN).forEach(f=>f());
+</script></body></html>
